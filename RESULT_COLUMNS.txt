@@ -1,0 +1,41 @@
+原始记录 results/raw_trials.csv（每行是一把密钥的一次完整攻击）
+
+set_id,trial              参数组号、组内试验编号（从 0 开始）。
+n,t,b,beta,G              密钥生成参数以及模数位长。
+Cp,Cg                    攻击使用的固定余因子上界。
+status                   unique / ambiguous / no_candidate 等输出状态。
+attack_s                 完整攻击时间，单位秒。
+cf_s                     公钥检查、连分数、残差和端点 gcd 的时间。
+endpoint_s               端点枚举、其他坐标恢复及两两互素检查时间。
+modulus_s                模数 gcd、模数枚举和公开方程验证时间。
+keygen_s                 密钥生成时间，不包含在 attack_s 中。
+endpoint_scans           两个端点共试过多少个余因子整数。
+endpoint_candidates_lo   最小公钥端点的候选整数个数。
+endpoint_candidates_hi   最大公钥端点的候选整数个数。
+endpoint_pairs           实际进入检查的端点组合个数。
+endpoint_gcd_rejections  因两个端点不互素而排除的组合数。
+reconstruction_rejections 因恢复分母、整除或区间失败而排除的组合数。
+coprimality_rejections   完整向量因不满足两两互素而排除的组合数。
+integer_vectors          通过全部坐标检查并进入模数恢复的整数向量数。
+modulus_scans            实际试过的模数余因子个数。
+public_validations       进入全部公开方程检查的候选次数。
+public_sha256            公钥列表标准 JSON 表示的 SHA-256，用于核对样本。
+unique_exact             输出集合是否恰为原始私钥；1 是，0 否。
+truth_in_candidates      原始私钥是否包含在返回集合内。
+candidate_count          返回候选个数。
+ratios_exact             用真实私钥核对所有中间有理比值是否正确。
+ratio_count              已计算的中间有理比值个数，完整运行应为 n-2。
+f_lo,f_hi,c               根据真实私钥测得的两个端点余因子和模数余因子。
+true_Fg                  真正整数向量对应的 floor(g0/(max(t_i)+1))。
+caps_cover_truth         三个真实余因子是否都位于固定上界内。
+
+真实私钥只用于计时结束后的评价，以上评价字段不供攻击使用。
+
+results/summary.csv 和 summary.json：每个参数组的次数、成功数、平均/中位/
+95% 分位/最大攻击时间，搜索次数上界及余因子统计。所有 *_s 字段单位均为秒。
+JSON 还包含各计数的分布。integer_vectors 在汇总中是个数的直方图。
+
+results/aggregate.json：全部 2400 次的总体统计。
+results/metadata.json：Python、操作系统、CPU、种子、输入参数、采样方式、
+计时口径、起止时间与程序文件哈希。
+results/public_set_01.json 至 public_set_24.json：每组第一把示例公钥，无私钥。

@@ -1,0 +1,54 @@
+{
+  "trials": 2400,
+  "unique_exact": 2400,
+  "truth_in_candidates": 2400,
+  "no_candidate": 0,
+  "ambiguous": 0,
+  "wrong_unique": 0,
+  "ratios_exact": 2400,
+  "total_ratios": 392700,
+  "caps_cover_truth": 2400,
+  "mean_s": 0.014283457372997266,
+  "median_s": 0.00861055008135736,
+  "p95_s": 0.034800385124981396,
+  "max_s": 0.042589899618178606,
+  "cf_mean_s": 0.013130923580999175,
+  "endpoint_mean_s": 0.0006833602546248585,
+  "modulus_mean_s": 0.00046673400443978606,
+  "keygen_mean_s": 0.014664191577467137,
+  "endpoint_scans_max": 4,
+  "endpoint_pairs_max": 1,
+  "modulus_scans_max": 1,
+  "f_lo": {
+    "1": 2400
+  },
+  "f_hi": {
+    "1": 2400
+  },
+  "c": {
+    "1": 2400
+  },
+  "endpoint_scans": {
+    "2": 1500,
+    "3": 16,
+    "4": 884
+  },
+  "modulus_scans": {
+    "1": 2400
+  },
+  "true_Fg": {
+    "1": 2400
+  },
+  "endpoint_candidates_lo": {
+    "1": 2400
+  },
+  "endpoint_candidates_hi": {
+    "1": 2400
+  },
+  "integer_vectors": {
+    "1": 2400
+  },
+  "endpoint_gcd_rejections": 0,
+  "reconstruction_rejections": 0,
+  "coprimality_rejections": 0
+}
