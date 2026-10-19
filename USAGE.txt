@@ -1,0 +1,135 @@
+GTLN Key Recovery via Continued Fractions: Code and Experiment Guide
+
+1. What this program does
+
+The attack takes the public-key integers t_1,...,t_n and the parameters b,
+beta, Cp, and Cg. It searches for pairwise coprime private integers in the
+interval [2^b, 2^(b+beta)), together with a modulus g and a shift u.
+Candidate integers may be composite. The attack performs no primality
+testing or integer factorization, and it receives neither the original
+private key nor the plaintext-weight parameter t.
+Cp and Cg are explicit search caps; the program never increases them
+automatically.
+
+The supplied experiment generates prime-based private keys for the 24
+parameter sets recommended in the original GTLN paper, with 100 keys per
+set. Primality testing is used only during key generation, not during the
+attack. No experiment generating and recovering composite private
+coordinates is included.
+
+2. Files and requirements
+
+cf_attack.py       Public-key attack: continued fractions, integer candidates,
+                   coprimality checks, modulus recovery, and public equations.
+key_generation.py  The 24 recommended parameter sets, reproducible random
+                   streams, and prime-based key generation.
+benchmark.py       Batch experiments; checks the original private key only
+                   after the attack timer stops.
+attack_public.py   Reads one public-key JSON file and outputs candidate keys.
+README.md          Repository overview and quick-start commands.
+USAGE.txt          Detailed instructions and an explanation of the algorithm.
+RESULTS.txt        Overall results and per-parameter timings of the supplied run.
+RESULT_COLUMNS.txt Definitions of fields in the raw records and summaries.
+results/           Records for 2,400 trials, summaries for 24 parameter sets,
+                   execution metadata, and 24 example public keys.
+SHA256SUMS.txt     SHA-256 checksums for verifying the accompanying files.
+
+All programs use only the Python standard library. SageMath, lattice
+reduction libraries, and other third-party packages are not required.
+Python 3.10 or later is required; Python 3.12 is recommended for reproducing
+the experiments.
+
+3. Recovery procedure
+
+1. Find the smallest and largest public-key entries, giving the two endpoint
+   indices l and h and the difference D. Check zD > 4Q^2+1, where z=2^b,
+   P=2^(b+beta), and Q=2P^3. Return no candidates if this check fails.
+2. For every non-endpoint coordinate, approximate (t_i-t_l)/D by a reduced
+   fraction N_i/M_i and verify the error condition using integer arithmetic.
+   Compute gcd(M_i-N_i) and gcd(N_i) over these coordinates.
+3. Try cofactors of these two gcds within the range allowed by the coordinate
+   interval and Cp. Keep a quotient only if division is exact and the quotient
+   lies in [z,P); primality is not required. Enumerate endpoint candidate pairs
+   and require the two endpoint integers to be coprime.
+4. Reconstruct the remaining coordinates using the U_i/V_i formula in the
+   paper. Check that the denominator is positive, division is exact, and the
+   resulting coordinate lies in the required interval. Check pairwise
+   coprimality of the complete vector by maintaining the product T of earlier
+   coordinates: each new coordinate p must satisfy gcd(p,T)=1 before T is
+   updated. Distinct integers that are not coprime fail this check.
+5. Compute g0 as the gcd of the n-1 expressions anchored at the first
+   coordinate. Enumerate divisors c of g0 satisfying
+   1 <= c <= min(Cg, floor(g0/(max(t_i)+1))) and set g=g0/c.
+   Recover u using one modular inverse, then check every public-key equation.
+   Return all candidates that pass these checks.
+
+The output may contain no candidate, one candidate, or multiple candidates.
+The program does not stop at the first candidate, and a candidate matching
+the public equations is not automatically identified as the original key.
+Inclusion of the original private key is guaranteed when the ratio-separation
+condition holds and all three true cofactors lie within their respective caps.
+
+4. Running the complete experiment
+
+On GitHub, select Code > Download ZIP and extract the archive. Open a terminal
+in the directory containing benchmark.py and run the following single command:
+
+python benchmark.py --trials 100 --Cp 2 --Cg 2 --seed 20261012 --out results_rerun
+
+This runs all 24 parameter sets sequentially, with 100 keys per set.
+Use a fresh output directory such as results_rerun. The program refuses to
+overwrite a directory that already contains experiment metadata.
+On Windows, python can be replaced with py -3.
+
+For a quick run with two keys for each of three parameter sets:
+
+python benchmark.py --sets 1,17,24 --trials 2 --Cp 2 --Cg 2 --seed 20261012 --out quick_run
+
+--sets accepts comma-separated set numbers from 1 to 24, or all.
+--trials sets the number of keys per parameter set. --seed controls the samples.
+--Cp and --Cg specify the fixed cofactor search caps.
+Using the same Python version, seed, and parameters reproduces the public-key
+samples and mathematical results. Timings depend on the machine and its load.
+
+5. Attacking one public key
+
+No key generation or known private key is required:
+
+python attack_public.py results/public_set_01.json --Cp 2 --Cg 2 --out recovered.json
+
+The input JSON contains three fields:
+  b: an integer;
+  beta: an integer;
+  public: a list of public-key integers.
+
+Large public-key integers are stored as decimal strings to avoid precision
+loss in other JSON readers. The output contains the status, timings, search
+counts, and every candidate key. Candidate coordinates p, modulus g, and shift
+u are also stored as decimal strings.
+
+6. Understanding the supplied experiment
+
+Key generation samples an integer uniformly from the coordinate interval and
+takes the strictly next prime. Out-of-range values and duplicates are rejected
+and resampled. The modulus g follows the bit-length rule in the original paper
+and is coprime to every private coordinate; u is sampled from its allowed range.
+Only key generation uses primality testing, with the first 12 prime bases in
+their deterministic validity range. The generator supports all tested
+parameter sets (whose maximum b+beta is 71) and explicitly requires
+b+beta <= 78. The public-key attack has no size restriction arising from this
+primality-testing backend.
+
+Timing includes the entire attack: public-input checks, continued fractions,
+candidate enumeration, coprimality checks, modulus search, and verification
+of the public equations. It excludes key generation, evaluation against the
+original key, and file I/O. Trials run sequentially in one process.
+After the attack timer stops, the evaluator checks whether the original key
+is in the returned set and whether it is the unique candidate. It also uses
+the original key to check the intermediate ratios and measure the three
+cofactors. Evaluation results are never fed back into the attack search.
+
+The supplied data describe performance for the recommended parameters and
+the stated key-generation procedure. They do not establish that arbitrary
+composite private coordinates have cofactors bounded by 2. Nor can 2,400
+samples verify a failure probability as small as 2^(-80); such probability
+estimates come from the heuristic random-gcd model in the paper.

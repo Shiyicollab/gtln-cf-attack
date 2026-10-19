@@ -54,7 +54,7 @@ large output integers are also represented as decimal strings.
 | `key_generation.py` | The 24 recommended parameter sets and reproducible prime-based key generation |
 | `benchmark.py` | Runs the experiments and checks recovery after the attack timer stops |
 | `attack_public.py` | Recovers candidates from a public-key JSON file |
-| `README_使用说明.txt` | Detailed Chinese instructions and an explanation of the algorithm |
+| [USAGE.txt](USAGE.txt) | Detailed usage instructions and an explanation of the algorithm |
 | `RESULTS.txt` | Summary and per-parameter results of the supplied experiment |
 | `RESULT_COLUMNS.txt` | Explanation of result columns |
 | `results/` | Raw trials, summaries, environment metadata and example public keys |

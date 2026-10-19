@@ -1,41 +1,46 @@
-原始记录 results/raw_trials.csv（每行是一把密钥的一次完整攻击）
+Raw records: results/raw_trials.csv
+Each row describes one complete attack on one generated key.
 
-set_id,trial              参数组号、组内试验编号（从 0 开始）。
-n,t,b,beta,G              密钥生成参数以及模数位长。
-Cp,Cg                    攻击使用的固定余因子上界。
-status                   unique / ambiguous / no_candidate 等输出状态。
-attack_s                 完整攻击时间，单位秒。
-cf_s                     公钥检查、连分数、残差和端点 gcd 的时间。
-endpoint_s               端点枚举、其他坐标恢复及两两互素检查时间。
-modulus_s                模数 gcd、模数枚举和公开方程验证时间。
-keygen_s                 密钥生成时间，不包含在 attack_s 中。
-endpoint_scans           两个端点共试过多少个余因子整数。
-endpoint_candidates_lo   最小公钥端点的候选整数个数。
-endpoint_candidates_hi   最大公钥端点的候选整数个数。
-endpoint_pairs           实际进入检查的端点组合个数。
-endpoint_gcd_rejections  因两个端点不互素而排除的组合数。
-reconstruction_rejections 因恢复分母、整除或区间失败而排除的组合数。
-coprimality_rejections   完整向量因不满足两两互素而排除的组合数。
-integer_vectors          通过全部坐标检查并进入模数恢复的整数向量数。
-modulus_scans            实际试过的模数余因子个数。
-public_validations       进入全部公开方程检查的候选次数。
-public_sha256            公钥列表标准 JSON 表示的 SHA-256，用于核对样本。
-unique_exact             输出集合是否恰为原始私钥；1 是，0 否。
-truth_in_candidates      原始私钥是否包含在返回集合内。
-candidate_count          返回候选个数。
-ratios_exact             用真实私钥核对所有中间有理比值是否正确。
-ratio_count              已计算的中间有理比值个数，完整运行应为 n-2。
-f_lo,f_hi,c               根据真实私钥测得的两个端点余因子和模数余因子。
-true_Fg                  真正整数向量对应的 floor(g0/(max(t_i)+1))。
-caps_cover_truth         三个真实余因子是否都位于固定上界内。
+set_id,trial               Parameter-set ID (1-24) and trial index within that set (starting at 0).
+n,t,b,beta,G               Key-generation parameters and modulus bit length G.
+Cp,Cg                     Fixed cofactor search caps used by the attack.
+status                    Output status, such as unique, ambiguous, or no_candidate.
+attack_s                  Complete attack time, in seconds.
+cf_s                      Time for public-input checks, continued fractions, residual checks, and endpoint gcds.
+endpoint_s                Time for endpoint enumeration, reconstruction of other coordinates, and pairwise-coprimality checks.
+modulus_s                 Time for the modulus gcd, modulus enumeration, and public-equation verification.
+keygen_s                  Key-generation time; excluded from attack_s.
+endpoint_scans            Total number of cofactor integers tried across both endpoints.
+endpoint_candidates_lo    Number of candidate integers for the smallest-public-entry endpoint.
+endpoint_candidates_hi    Number of candidate integers for the largest-public-entry endpoint.
+endpoint_pairs            Number of endpoint candidate pairs examined.
+endpoint_gcd_rejections   Number of pairs rejected because the endpoints are not coprime.
+reconstruction_rejections Number of pairs rejected due to an invalid reconstruction denominator, inexact division, or an out-of-range coordinate.
+coprimality_rejections    Number of complete vectors rejected because their coordinates are not pairwise coprime.
+integer_vectors           Number of integer vectors passing all coordinate checks and reaching modulus recovery.
+modulus_scans             Number of modulus cofactors tried.
+public_validations        Number of candidates reaching verification of all public equations.
+public_sha256             SHA-256 of the public-key list serialized with Python's json.dumps(public), for checking sample identity.
+unique_exact              Whether the output consists of exactly the original private key: 1 for yes, 0 for no.
+truth_in_candidates       Whether the original private key is in the returned candidate set.
+candidate_count           Number of returned candidates.
+ratios_exact              Whether all recovered intermediate ratios match those computed from the original key.
+ratio_count               Number of intermediate ratios computed; n-2 in a complete run.
+f_lo,f_hi,c               True cofactors for the two endpoints and the modulus, measured using the original key.
+true_Fg                   The value floor(g0/(max(t_i)+1)) for the true private integer vector.
+caps_cover_truth          Whether all three true cofactors lie within the fixed search caps.
 
-真实私钥只用于计时结束后的评价，以上评价字段不供攻击使用。
+The original private key is used only for evaluation after the attack timer
+stops. The evaluation fields above are not available to the attack.
 
-results/summary.csv 和 summary.json：每个参数组的次数、成功数、平均/中位/
-95% 分位/最大攻击时间，搜索次数上界及余因子统计。所有 *_s 字段单位均为秒。
-JSON 还包含各计数的分布。integer_vectors 在汇总中是个数的直方图。
+results/summary.csv and results/summary.json contain per-parameter trial and
+success counts, mean/median/95th-percentile/maximum attack times, maximum
+observed search counts, and cofactor statistics. All *_s fields use seconds.
+The JSON summaries also include count distributions. In these summaries,
+integer_vectors is a histogram of the number of accepted integer vectors.
 
-results/aggregate.json：全部 2400 次的总体统计。
-results/metadata.json：Python、操作系统、CPU、种子、输入参数、采样方式、
-计时口径、起止时间与程序文件哈希。
-results/public_set_01.json 至 public_set_24.json：每组第一把示例公钥，无私钥。
+results/aggregate.json contains overall statistics for all 2,400 trials.
+results/metadata.json records Python, operating system, CPU, seed, input
+parameters, sampling procedure, timing scope, start/end times, and source hashes.
+results/public_set_01.json through results/public_set_24.json contain the first
+sample public key from each parameter set. They contain no private keys.
